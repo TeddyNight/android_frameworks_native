@@ -25,7 +25,8 @@
 #include <binder/IMemory.h>
 #include <utils/SortedVector.h>
 #include <utils/threads.h>
-#include <linux/ion.h>
+
+struct ion_handle;
 
 namespace android {
 
@@ -45,10 +46,24 @@ public:
     status_t ionInit(int ionFd, void *base, int size, int flags,
                                 const char* device, struct ion_handle *handle,
                                 int ionMapFd);
+    int get_phy_addr_from_ion(int *phy_addr, int *size);
+    int flush_ion_buffer(void *v_addr, void *p_addr,int size);
+    int get_gsp_iova(int *mmu_addr, int *size);
+    int free_gsp_iova(int mmu_addr, int size);
+    int get_mm_iova(int *mmu_addr, int *size);
+    int free_mm_iova(int mmu_addr, int size);
+    static int Get_gsp_iova(int buffer_fd, int *mmu_addr, int *size);
+    static int Free_gsp_iova(int buffer_fd, int mmu_addr, int size);
+    static int Get_mm_iova(int buffer_fd,int *mmu_addr, int *size);
+    static int Free_mm_iova(int buffer_fd,int mmu_addr, int size);
+    static int Get_phy_addr_from_ion(int fd, int *phy_addr, int *size);/*fd is "fd of the corresponding ion hanlde"*/
+    static int Flush_ion_buffer(int buffer_fd, void *v_addr,void *p_addr, int size);
+    static bool Gsp_iommu_is_enabled(void);
+    static bool Mm_iommu_is_enabled(void);
 
 private:
-	int mIonDeviceFd;  /*fd we get from open("/dev/ion")*/
-	struct ion_handle *mIonHandle;  /*handle we get from ION_IOC_ALLOC*/ };
+    int mIonDeviceFd;  /*fd we get from open("/dev/ion")*/
+    struct ion_handle *mIonHandle;  /*handle we get from ION_IOC_ALLOC*/ };
 
 // ---------------------------------------------------------------------------
 }; // namespace android
